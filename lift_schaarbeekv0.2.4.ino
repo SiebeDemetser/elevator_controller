@@ -56,13 +56,15 @@ etage nummers
 #define cntDeuren 48
 #define debugSwitch 49
 #define motorbeveiliging 50
+#define cntKast 51
 
-
+bool kastNC = true;
 
 //active en inactive in plaats van high en low wegens inverse waarde
 int active = 0;
 int inactive = 1;
 int location = 10;                   //address eerste byte van counter in EEPROM
+bool isOpen = true;
 LiquidCrystal_I2C lcd(0x27, 16, 2);  // lcd aanmaken
 
 
@@ -103,6 +105,7 @@ void setup() {
   pinMode(eindeloopBeneden, INPUT_PULLUP);
   pinMode(debugSwitch, INPUT);
   pinMode(motorbeveiliging, INPUT_PULLUP);
+  pinMode(cntKast,INPUT);
   pinMode(magnet0, OUTPUT);
   digitalWrite(magnet0, inactive);
   pinMode(magnet1, OUTPUT);
@@ -188,6 +191,23 @@ void loop(){
     lcd.setCursor(0, 1);
     lcd.print("BEVEILIGING");
     delay(3000);
+  }
+}
+
+bool isKastOpen(){
+  isOpen = digitalRead(cntKast);
+  if(kastNC){
+    if(isOpen){
+      return true;
+    }else{
+      return false;
+    }
+  }else{
+    if(isOpen){
+      return false;
+    }else{
+      return true;
+    }
   }
 }
 
