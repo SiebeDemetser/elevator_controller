@@ -59,6 +59,7 @@ etage nummers
 #define cntKast 51
 
 bool kastNC = true;
+int loopCount = 0;
 
 //active en inactive in plaats van high en low wegens inverse waarde
 int active = 0;
@@ -128,7 +129,7 @@ void setup() {
   //pinMode(btnSendDown, INPUT_PULLUP); // Input pullup means that the signal is HIGH if circuit is switched off!
   Serial.begin(57600);
 
-  while(digitalRead(debugSwitch)){
+  while(!digitalRead(debugSwitch)){
     for(int i =1;i<=9;i++){
       char line1[16];
       char line2[16];
@@ -166,14 +167,41 @@ void loop(){
   if(digitalRead(motorbeveiliging)){
     int btnIn = controlleerButtons();
     int liftPosition = checkPosition();
-    lcd.clear();
-    lcd.setCursor(15, 0);
-    lcd.print(btnIn);
-    lcd.setCursor(15, 1);
-    lcd.print(liftPosition);
+    //lcd.clear();
+    if(btnIn!=9){
+      lcd.clear();
+      lcd.setCursor(0, 0);
+      lcd.print("Input:");
+      if(btnIn==0){
+        lcd.setCursor(14, 0);
+      } else{
+        lcd.setCursor(15, 0);
+      }
+      lcd.print(btnIn-1);
+    } else{
+      lcd.setCursor(0,0);
+      lcd.print("No input");
+    }
+    if(liftPosition!=9){
+      lcd.setCursor(0, 1);
+      lcd.print("Lift position:");
+      if(liftPosition==0){
+        lcd.setCursor(14,1);
+      } else{
+        lcd.setCursor(15, 1);
+      }
+      lcd.print(liftPosition-1);
+    } else{
+      lcd.clear();
+      lcd.setCursor(0, 1);
+      lcd.print("pos unknown");
+    }
+    
+    
     delay(200);
     if((btnIn !=9 && liftPosition != btnIn)&&digitalRead(cntDeuren)){
       liftMove(btnIn);
+      lcd.clear();
     }else{
       if(!digitalRead(cntDeuren)){
         lcd.clear();
@@ -309,6 +337,9 @@ void autohome(){
 
 void liftMove(int target){
   moving(true);
+  lcd.clear();
+  lcd.setCursor(0,0);
+  lcd.print("Lift moving");
   liftStop();
   int pos = checkPosition;
   while(pos==9){
