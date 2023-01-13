@@ -129,20 +129,6 @@ void setup() {
   //pinMode(btnSendDown, INPUT_PULLUP); // Input pullup means that the signal is HIGH if circuit is switched off!
   Serial.begin(57600);
 
-  while(!digitalRead(debugSwitch)){
-    for(int i =1;i<=9;i++){
-      char line1[16];
-      char line2[16];
-      sprintf(line1, "error %i:", i);
-      sprintf(line2, "error code: %i", readEEPROM(i));
-      lcd.clear();
-      lcd.setCursor(0, 0);
-      lcd.print(line1);
-      lcd.setCursor(0, 1);
-      lcd.print(line2);
-      delay(5000);
-    }
-  }
   
   liftStop();
   autohome();
@@ -199,10 +185,10 @@ void loop(){
     
     
     delay(200);
-    if((btnIn !=9 && liftPosition != btnIn)&&digitalRead(cntDeuren)){
-      liftMove(btnIn);
-      lcd.clear();
-    }else{
+    if(btnIn !=9 && liftPosition != btnIn){
+      if(!digitalRead(cntDeuren)){
+        closeDoors();
+      }
       if(!digitalRead(cntDeuren)){
         lcd.clear();
         lcd.setCursor(0, 0);
@@ -210,8 +196,24 @@ void loop(){
         lcd.setCursor(0, 1);
         lcd.print("DOOR OPEN");
         delay(3000);
+      } else{
+        liftMove(btnIn);
+        lcd.clear();
       }
     }
+//    if((btnIn !=9 && liftPosition != btnIn)&&digitalRead(cntDeuren)){
+//      liftMove(btnIn);
+//      lcd.clear();
+//    }else{
+//      if(!digitalRead(cntDeuren)){
+//        lcd.clear();
+//        lcd.setCursor(0, 0);
+//        lcd.print("ERROR ");
+//        lcd.setCursor(0, 1);
+//        lcd.print("DOOR OPEN");
+//        delay(3000);
+//      }
+//    }
   }else{
     lcd.clear();
     lcd.setCursor(0, 0);
@@ -408,6 +410,18 @@ void moving(bool moving){
     digitalWrite(magnet3,inactive);
   }
   delay(1000);
+}
+
+void closeDoors(){
+  digitalWrite(magnet0,active);
+  digitalWrite(magnet1,active);
+  digitalWrite(magnet2,active);
+  digitalWrite(magnet3,active);
+  delay(2000);
+  digitalWrite(magnet0,inactive);
+  digitalWrite(magnet1,inactive);
+  digitalWrite(magnet2,inactive);
+  digitalWrite(magnet3,inactive);
 }
 
 void writeEEPROM(int val, int address) {
